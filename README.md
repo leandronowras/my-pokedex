@@ -3,6 +3,8 @@
 This project is a real-time interactive Pokédex built with TypeScript and Next.js, powered by the [PokéAPI](https://pokeapi.co/).
 
 With it, you can browse through Pokémon, search your favorites, apply filters, and dive into detailed pages featuring stats, evolutions, and more. <br><br>
+
+The app is deployed on Railway and ready for you to explore here: [Pokédex](https://my-pokedex-production.up.railway.app/)<br>
 Think of it as your own digital Professor Oak, but without the lab coat.<br>
 
 ## ✨ Main Features
