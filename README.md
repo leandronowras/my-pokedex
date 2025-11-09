@@ -1,83 +1,115 @@
-# Pokédex 
+# Pokédex
+> Explore Pokémon with real-time search, filters, and detailed stats powered by PokéAPI.
+[![Build Status](https://img.shields.io/github/actions/workflow/status/user/repo/ci.yml)](https://github.com/user/repo/actions)
+[![npm version](https://img.shields.io/npm/v/package-name)](https://www.npmjs.com/package/package-name)
+[![License](https://img.shields.io/github/license/user/repo)](LICENSE)
 
-This project is a real-time interactive Pokédex built with TypeScript and Next.js, powered by the [PokéAPI](https://pokeapi.co/).
+A responsive Pokédex built with Next.js, TypeScript, and shadcn/ui. The app streams data from PokéAPI to deliver instant search, filter, and browsing experiences, making it easy for fans to find their favorite Pokémon and dig into evolutions or stats without friction.
 
-With it, you can browse through Pokémon, search your favorites, apply filters, and dive into detailed pages featuring stats, evolutions, and more. <br><br>
+## Table of Contents
+- [Key Features](#key-features)
+- [Screenshots or Demo](#screenshots-or-demo)
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+- [Usage Examples](#usage-examples)
+- [API Reference](#api-reference)
+- [Configuration](#configuration)
 
-The app is deployed on Railway and ready for you to explore here: [Pokédex](https://my-pokedex-production.up.railway.app/)<br>
-Think of it as your own digital Professor Oak, but without the lab coat.<br>
+## Key Features
+- Interactive Pokémon catalog with type, generation, and pagination controls.
+- Real-time search that includes evolution families in the results.
+- Persistent state so filters and pagination survive navigation.
+- Detail pages with official artwork, stats, evolutions, and sprites.
+- Optimized caching strategy to minimize redundant PokéAPI calls.
 
-## ✨ Main Features
+## Screenshots or Demo
+- Live demo: [https://my-pokedex-production.up.railway.app/](https://my-pokedex-production.up.railway.app/)
 
-### 📋 Pokémon List
-- Displays all Pokémon ordered by **ID**.
-- Each Pokémon shows:
-  - Name ✅
-  - Generation ✅
-  - Types ✅
-
-### 🎛️ Filters
-- **Filter by type** (e.g., Water, Fire, Grass…). ✅  
-- **Filter by generation** (e.g., Kanto, Johto, Hoenn…). ✅  
-
-### 🔍 Real-time Search
-- Instant search filtering as you type. ✅  
-- Includes **evolutions** in the results.  
-  (Example: searching *Pikachu* will also show *Pichu* and *Raichu*). ✅  
-
-### 📄 Pokémon Detail Page
-Clicking on a Pokémon opens a dedicated detail page with:
-- Name ✅  
-- Official artwork ✅  
-- Generation ✅  
-- Types ✅  
-- Evolutions (with images) ✅  
-- Base stats ✅  
-- Ability to navigate between evolutions (current evolution is highlighted). ✅  
-
-### 🔙 State Persistence
-- When navigating back to the list, filters, search term, and pagination are preserved. ✅  
-- (Note: state is not persisted after a full browser reload).  
-
-## 🛠️ Tech Stack
-- [Next.js](https://nextjs.org/) 
-- [TypeScript](https://www.typescriptlang.org/)  
-- [shadcn/ui](https://ui.shadcn.com/)
-- [PokéAPI](https://pokeapi.co/)  
-- [Zustand](https://zustand.docs.pmnd.rs/getting-started/introduction)
-- [T3 Stack](https://create.t3.gg/) 
-  - tRPC 
-  - Zod
-  - Tailwind 
-
-## 🚀 Run Locally
-
-### 1. Clone the repository
+## Quick Start
+Get up and running in less than 5 minutes:
 ```bash
-git clone https://github.com/your-username/pokedex-nextjs.git
-cd pokedex-nextjs
+npm install
+npm run dev
 ```
+Visit http://localhost:3000 to see the application.
 
-### 2. Install dependencies
+## Installation
+### Prerequisites
+- Node.js 18+
+- npm 10+
 
-```
+### Install from npm
+Install dependencies for local development:
+```bash
 npm install
 ```
 
-### 3. Start development server
-
-
+### Install from source
 ```bash
-npm run dev
-```
-
-App will be running at:
-👉 http://localhost:3000
-
-### 4. Build for production
-
-```bash
+git clone https://github.com/user/repo.git
+cd repo
+npm install
 npm run build
-npm run start
 ```
 
+## Usage Examples
+### Basic Example
+Use the store helpers to render a compact Pokémon list in any client component:
+```tsx
+"use client";
+
+import { useEffect } from "react";
+import { usePokemonStore } from "~/app/_store/usePokemonStore";
+
+export function StarterList() {
+  const { allPokemon, fetchPokemonData } = usePokemonStore();
+
+  useEffect(() => {
+    void fetchPokemonData();
+  }, [fetchPokemonData]);
+
+  return (
+    <ul>
+      {allPokemon.slice(0, 5).map((pokemon) => (
+        <li key={pokemon.id}>{pokemon.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+### Advanced Example
+Fetch a specific page of results on the server with tRPC and pass it to your UI:
+```ts
+import { createCaller } from "~/server/api/root";
+import { createTRPCContext } from "~/server/api/trpc";
+
+export async function getPokemonPage() {
+  const context = await createTRPCContext({
+    headers: new Headers({ "x-trpc-source": "docs-example" }),
+  });
+  const caller = createCaller(context);
+
+  const response = await caller.poke_api.myDynamicFetch({
+    currentPage: 2,
+    itemsPerPageInit: 0,
+    itemsPerPageEnd: 20,
+  });
+
+  return response.results;
+}
+```
+
+## API Reference
+- Browse interactive documentation: [docs/how-to-browse-pokemon.mdx](docs/how-to-browse-pokemon.mdx)
+- The `poke_api` router exposes:
+  - `myAllPages`: returns the total number of pages.
+  - `myAllPokemons`: returns the total Pokémon count.
+  - `myDynamicFetch`: paginated list query that accepts `{ currentPage, itemsPerPageInit, itemsPerPageEnd }`.
+
+## Configuration
+| Setting | Location | Description |
+| --- | --- | --- |
+| PokéAPI base URL | `src/server/api/routers/pokeApi.ts` | Change to point at a different Pokémon data source. |
+| Items per page defaults | `src/app/_store/usePokemonStore.ts` | Update `itemsPerPage` to adjust list density. |
+| Recently visited cache size | `src/lib/recently-visited.ts` | Adjust retention for the sidebar history. |
